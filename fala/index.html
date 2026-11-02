@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FalaJá — pratique inglês e espanhol</title>
+<meta name="description" content="Pratique a conversação em inglês e espanhol falando em voz alta. Ouça, repita e receba a sua nota na hora.">
+<meta name="theme-color" content="#12b886">
+<style>
+  :root {
+    --bg: #f6f7fb; --card: #ffffff; --text: #1b1f2a; --muted: #69708a; --line: #e3e6ef;
+    --brand: #12b886; --brand-dark: #0c8f68; --brand-soft: #e3f8f0;
+    --es: #f08c00; --es-soft: #fff1dc; --bad: #e03131; --bad-soft: #ffe8e8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0f1218; --card: #181c25; --text: #eef0f6; --muted: #9aa1b6; --line: #2a303d;
+      --brand-soft: #143a2f; --es-soft: #3b2a10; --bad-soft: #3d1b1b; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; -webkit-tap-highlight-color: transparent; }
+  .app { max-width: 560px; margin: 0 auto; padding: 16px 16px 40px; min-height: 100vh; }
+  header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .logo { font-weight: 800; font-size: 1.5rem; letter-spacing: -.5px; display: flex; align-items: center; gap: 8px; }
+  .logo b { background: var(--brand); color: #fff; border-radius: 10px; padding: 0 8px; }
+  .stats { display: flex; gap: 10px; font-weight: 700; font-size: .95rem; }
+  .stats span { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; }
+  h2 { font-size: 1.25rem; margin: 22px 0 10px; }
+  .muted { color: var(--muted); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px; }
+  .langs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .lang { border: 2px solid var(--line); background: var(--card); color: var(--text); border-radius: 18px; padding: 18px 12px; font-size: 1.05rem; font-weight: 700; cursor: pointer; text-align: center; }
+  .lang .flag { font-size: 2.2rem; display: block; margin-bottom: 4px; }
+  .lang.on { border-color: var(--brand); background: var(--brand-soft); }
+  .lang.on.es { border-color: var(--es); background: var(--es-soft); }
+  .topics { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .topic { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 14px; cursor: pointer; text-align: left; color: var(--text); font: inherit; }
+  .topic .ico { font-size: 1.8rem; }
+  .topic .name { font-weight: 700; display: block; margin-top: 4px; }
+  .topic .bar { height: 6px; background: var(--line); border-radius: 9px; margin-top: 10px; overflow: hidden; }
+  .topic .bar i { display: block; height: 100%; background: var(--brand); width: 0; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 14px; padding: 14px 18px; font: inherit; font-weight: 700; cursor: pointer; background: var(--brand); color: #fff; }
+  .btn:active { transform: scale(.98); }
+  .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
+  .btn.wide { width: 100%; }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .back { background: none; border: 0; color: var(--muted); font: inherit; font-weight: 600; cursor: pointer; padding: 6px 0; }
+  .progress { height: 10px; background: var(--line); border-radius: 9px; overflow: hidden; margin: 6px 0 18px; }
+  .progress i { display: block; height: 100%; background: var(--brand); transition: width .3s; }
+  .phrase { font-size: 1.55rem; font-weight: 800; margin: 6px 0 4px; line-height: 1.3; }
+  .phrase .w { border-radius: 6px; padding: 0 2px; }
+  .phrase .w.ok { background: var(--brand-soft); color: var(--brand-dark); }
+  .phrase .w.miss { background: var(--bad-soft); color: var(--bad); }
+  .trans { color: var(--muted); font-size: 1.05rem; }
+  .row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .row .btn { flex: 1; }
+  .mic { width: 92px; height: 92px; border-radius: 50%; font-size: 2.4rem; margin: 22px auto 8px; display: flex; padding: 0; }
+  .mic.rec { background: var(--bad); animation: pulse 1.1s infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(224,49,49,.5); } 100% { box-shadow: 0 0 0 22px rgba(224,49,49,0); } }
+  .center { text-align: center; }
+  .heard { margin-top: 10px; font-style: italic; color: var(--muted); min-height: 1.5em; }
+  .score { font-size: 2.6rem; font-weight: 900; }
+  .score.good { color: var(--brand); } .score.mid { color: var(--es); } .score.bad { color: var(--bad); }
+  .feedback { text-align: center; margin-top: 10px; }
+  .typebox { display: flex; gap: 8px; margin-top: 12px; }
+  .typebox input { flex: 1; border: 1px solid var(--line); background: var(--bg); color: var(--text); border-radius: 12px; padding: 12px; font: inherit; }
+  .chat { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+  .msg { max-width: 85%; padding: 10px 14px; border-radius: 16px; }
+  .msg small { display: block; color: var(--muted); font-size: .85rem; margin-top: 2px; }
+  .msg.bot { background: var(--card); border: 1px solid var(--line); align-self: flex-start; border-bottom-left-radius: 4px; }
+  .msg.me { background: var(--brand); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+  .msg.me small { color: #d9fff1; }
+  .hints { display: flex; flex-direction: column; gap: 8px; }
+  .hint { background: var(--card); border: 1px dashed var(--line); border-radius: 12px; padding: 10px 12px; text-align: left; color: var(--text); font: inherit; cursor: pointer; }
+  .hint small { display: block; color: var(--muted); }
+  .note { background: var(--es-soft); border-radius: 12px; padding: 10px 12px; font-size: .92rem; margin-top: 14px; }
+  .modes { display: grid; gap: 12px; }
+  .mode { display: flex; gap: 14px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px; cursor: pointer; text-align: left; color: var(--text); font: inherit; }
+  .mode .ico { font-size: 2rem; }
+  .mode b { display: block; }
+  footer { margin-top: 36px; text-align: center; color: var(--muted); font-size: .85rem; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+/* ===================== CONTEÚDO ===================== */
+const TOPICS = [
+  { id: "apresentacao", ico: "👋", name: "Se apresentar",
+    phrases: [
+      { en: "Hi, my name is Ana.", es: "Hola, me llamo Ana.", pt: "Oi, meu nome é Ana." },
+      { en: "Nice to meet you.", es: "Mucho gusto.", pt: "Prazer em te conhecer." },
+      { en: "I am from Brazil.", es: "Soy de Brasil.", pt: "Eu sou do Brasil." },
+      { en: "I live in São Paulo.", es: "Vivo en São Paulo.", pt: "Eu moro em São Paulo." },
+      { en: "How are you today?", es: "¿Cómo estás hoy?", pt: "Como você está hoje?" },
+      { en: "I am learning English.", es: "Estoy aprendiendo español.", pt: "Estou aprendendo inglês / espanhol." },
+      { en: "What do you do for a living?", es: "¿A qué te dedicas?", pt: "Com o que você trabalha?" },
+      { en: "See you later!", es: "¡Hasta luego!", pt: "Até mais!" }
+    ] },
+  { id: "restaurante", ico: "🍽️", name: "No restaurante",
+    phrases: [
+      { en: "A table for two, please.", es: "Una mesa para dos, por favor.", pt: "Uma mesa para dois, por favor." },
+      { en: "Can I see the menu?", es: "¿Puedo ver el menú?", pt: "Posso ver o cardápio?" },
+      { en: "I would like a glass of water.", es: "Quisiera un vaso de agua.", pt: "Eu gostaria de um copo de água." },
+      { en: "What do you recommend?", es: "¿Qué me recomienda?", pt: "O que você recomenda?" },
+      { en: "I am allergic to peanuts.", es: "Soy alérgico al maní.", pt: "Sou alérgico a amendoim." },
+      { en: "It was delicious.", es: "Estaba delicioso.", pt: "Estava delicioso." },
+      { en: "Can I have the check, please?", es: "La cuenta, por favor.", pt: "A conta, por favor." },
+      { en: "Can I pay by card?", es: "¿Puedo pagar con tarjeta?", pt: "Posso pagar com cartão?" }
+    ] },
+  { id: "viagem", ico: "✈️", name: "Viagem",
+    phrases: [
+      { en: "Where is the bathroom?", es: "¿Dónde está el baño?", pt: "Onde fica o banheiro?" },
+      { en: "How much does it cost?", es: "¿Cuánto cuesta?", pt: "Quanto custa?" },
+      { en: "I have a reservation.", es: "Tengo una reserva.", pt: "Eu tenho uma reserva." },
+      { en: "How do I get to the airport?", es: "¿Cómo llego al aeropuerto?", pt: "Como eu chego ao aeroporto?" },
+      { en: "Is it far from here?", es: "¿Está lejos de aquí?", pt: "É longe daqui?" },
+      { en: "I am lost.", es: "Estoy perdido.", pt: "Estou perdido." },
+      { en: "One ticket to downtown, please.", es: "Un boleto al centro, por favor.", pt: "Uma passagem para o centro, por favor." },
+      { en: "Can you speak more slowly?", es: "¿Puede hablar más despacio?", pt: "Você pode falar mais devagar?" }
+    ] },
+  { id: "trabalho", ico: "💼", name: "Trabalho",
+    phrases: [
+      { en: "I work in sales.", es: "Trabajo en ventas.", pt: "Eu trabalho com vendas." },
+      { en: "Let's schedule a meeting.", es: "Vamos a agendar una reunión.", pt: "Vamos marcar uma reunião." },
+      { en: "I will send you an email.", es: "Te voy a enviar un correo.", pt: "Vou te mandar um e-mail." },
+      { en: "Could you repeat that, please?", es: "¿Podría repetir, por favor?", pt: "Você poderia repetir, por favor?" },
+      { en: "I agree with you.", es: "Estoy de acuerdo contigo.", pt: "Concordo com você." },
+      { en: "The deadline is on Friday.", es: "El plazo es el viernes.", pt: "O prazo é na sexta-feira." },
+      { en: "Thank you for your time.", es: "Gracias por su tiempo.", pt: "Obrigado pelo seu tempo." },
+      { en: "I have experience in this area.", es: "Tengo experiencia en esta área.", pt: "Tenho experiência nessa área." }
+    ] },
+  { id: "compras", ico: "🛍️", name: "Compras",
+    phrases: [
+      { en: "I am just looking, thanks.", es: "Solo estoy mirando, gracias.", pt: "Só estou olhando, obrigado." },
+      { en: "Do you have this in a bigger size?", es: "¿Lo tiene en una talla más grande?", pt: "Tem esse num tamanho maior?" },
+      { en: "Can I try it on?", es: "¿Me lo puedo probar?", pt: "Posso experimentar?" },
+      { en: "It is too expensive.", es: "Es demasiado caro.", pt: "É caro demais." },
+      { en: "Is there a discount?", es: "¿Hay algún descuento?", pt: "Tem algum desconto?" },
+      { en: "I will take it.", es: "Me lo llevo.", pt: "Vou levar." },
+      { en: "Can I have a bag, please?", es: "¿Me da una bolsa, por favor?", pt: "Pode me dar uma sacola, por favor?" },
+      { en: "What time do you close?", es: "¿A qué hora cierran?", pt: "Que horas vocês fecham?" }
+    ] },
+  { id: "saude", ico: "🩺", name: "Saúde",
+    phrases: [
+      { en: "I don't feel well.", es: "No me siento bien.", pt: "Não estou me sentindo bem." },
+      { en: "I have a headache.", es: "Me duele la cabeza.", pt: "Estou com dor de cabeça." },
+      { en: "I need a doctor.", es: "Necesito un médico.", pt: "Preciso de um médico." },
+      { en: "Where is the pharmacy?", es: "¿Dónde está la farmacia?", pt: "Onde fica a farmácia?" },
+      { en: "I have a fever.", es: "Tengo fiebre.", pt: "Estou com febre." },
+      { en: "I take this medicine every day.", es: "Tomo este medicamento todos los días.", pt: "Tomo esse remédio todo dia." },
+      { en: "Call an ambulance!", es: "¡Llame a una ambulancia!", pt: "Chame uma ambulância!" },
+      { en: "I feel much better now.", es: "Ahora me siento mucho mejor.", pt: "Agora me sinto bem melhor." }
+    ] }
+];
+
+/* Conversas guiadas: o app fala, você responde com uma das opções (ou do seu jeito). */
+const DIALOGS = {
+  en: [
+    { title: "Pedindo um café ☕", lines: [
+      { bot: "Hi! What can I get for you?", pt: "Oi! O que vai querer?",
+        ans: [["I would like a coffee, please.", "Eu queria um café, por favor."], ["Can I have a cappuccino?", "Pode ser um cappuccino?"]] },
+      { bot: "Sure. What size?", pt: "Claro. Qual tamanho?",
+        ans: [["A medium one, please.", "Um médio, por favor."], ["Small, please.", "Pequeno, por favor."]] },
+      { bot: "For here or to go?", pt: "Para comer aqui ou para levar?",
+        ans: [["For here.", "Para aqui."], ["To go, please.", "Para levar, por favor."]] },
+      { bot: "That will be five dollars.", pt: "Fica cinco dólares.",
+        ans: [["Here you go.", "Aqui está."], ["Can I pay by card?", "Posso pagar com cartão?"]] },
+      { bot: "Thank you! Have a nice day!", pt: "Obrigado! Tenha um bom dia!",
+        ans: [["Thanks, you too!", "Obrigado, você também!"]] }
+    ] },
+    { title: "Conhecendo alguém 🙂", lines: [
+      { bot: "Hello! I don't think we've met. I'm Sam.", pt: "Olá! Acho que não nos conhecemos. Eu sou o Sam.",
+        ans: [["Hi Sam, I'm Ana. Nice to meet you.", "Oi Sam, eu sou a Ana. Prazer."]] },
+      { bot: "Nice to meet you too! Where are you from?", pt: "Prazer também! De onde você é?",
+        ans: [["I'm from Brazil.", "Sou do Brasil."]] },
+      { bot: "Cool! What do you do?", pt: "Legal! O que você faz?",
+        ans: [["I work in sales.", "Trabalho com vendas."], ["I am a student.", "Sou estudante."]] },
+      { bot: "Why are you learning English?", pt: "Por que você está aprendendo inglês?",
+        ans: [["Because I want to travel.", "Porque eu quero viajar."], ["For my job.", "Para o meu trabalho."]] },
+      { bot: "That's great. Your English is good!", pt: "Que ótimo. Seu inglês é bom!",
+        ans: [["Thank you so much!", "Muito obrigado!"]] }
+    ] }
+  ],
+  es: [
+    { title: "Pidiendo un café ☕", lines: [
+      { bot: "¡Hola! ¿Qué te pongo?", pt: "Oi! O que vai querer?",
+        ans: [["Quisiera un café, por favor.", "Eu queria um café, por favor."], ["Un cortado, por favor.", "Um cortado (pingado), por favor."]] },
+      { bot: "Claro. ¿Grande o pequeño?", pt: "Claro. Grande ou pequeno?",
+        ans: [["Pequeño, por favor.", "Pequeno, por favor."], ["Grande, por favor.", "Grande, por favor."]] },
+      { bot: "¿Para tomar aquí o para llevar?", pt: "Para tomar aqui ou para levar?",
+        ans: [["Para tomar aquí.", "Para tomar aqui."], ["Para llevar.", "Para levar."]] },
+      { bot: "Son tres euros.", pt: "São três euros.",
+        ans: [["Aquí tiene.", "Aqui está."], ["¿Puedo pagar con tarjeta?", "Posso pagar com cartão?"]] },
+      { bot: "¡Gracias! ¡Que tengas un buen día!", pt: "Obrigado! Tenha um bom dia!",
+        ans: [["Gracias, igualmente.", "Obrigado, igualmente."]] }
+    ] },
+    { title: "Conociendo a alguien 🙂", lines: [
+      { bot: "¡Hola! Creo que no nos conocemos. Soy Lucía.", pt: "Olá! Acho que não nos conhecemos. Sou a Lucía.",
+        ans: [["Hola Lucía, soy Ana. Mucho gusto.", "Oi Lucía, sou a Ana. Prazer."]] },
+      { bot: "¡Encantada! ¿De dónde eres?", pt: "Prazer! De onde você é?",
+        ans: [["Soy de Brasil.", "Sou do Brasil."]] },
+      { bot: "¡Qué bien! ¿A qué te dedicas?", pt: "Que legal! Com o que você trabalha?",
+        ans: [["Trabajo en ventas.", "Trabalho com vendas."], ["Soy estudiante.", "Sou estudante."]] },
+      { bot: "¿Por qué estudias español?", pt: "Por que você estuda espanhol?",
+        ans: [["Porque quiero viajar.", "Porque eu quero viajar."], ["Por mi trabajo.", "Pelo meu trabalho."]] },
+      { bot: "¡Hablas muy bien!", pt: "Você fala muito bem!",
+        ans: [["¡Muchas gracias!", "Muito obrigado!"]] }
+    ] }
+  ]
+};
+
+const LANG = {
+  en: { name: "Inglês", flag: "🇺🇸", voice: "en-US" },
+  es: { name: "Espanhol", flag: "🇪🇸", voice: "es-ES" }
+};
+
+/* ===================== ESTADO SALVO ===================== */
+const store = {
+  get() { try { return JSON.parse(localStorage.getItem("falaja") || "{}"); } catch { return {}; } },
+  set(v) { try { localStorage.setItem("falaja", JSON.stringify(v)); } catch {} }
+};
+let S = Object.assign({ lang: "en", xp: 0, streak: 0, lastDay: "", done: {} }, store.get());
+const save = () => store.set(S);
+
+function today() { const d = new Date(); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
+function addXP(n) {
+  S.xp += n;
+  const t = today();
+  if (S.lastDay !== t) {
+    const y = new Date(Date.now() - 864e5);
+    const yest = y.getFullYear() + "-" + (y.getMonth() + 1) + "-" + y.getDate();
+    S.streak = S.lastDay === yest ? S.streak + 1 : 1;
+    S.lastDay = t;
+  }
+  save();
+}
+
+/* ===================== VOZ ===================== */
+const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+const canListen = !!Rec;
+
+function speak(text, slow) {
+  if (!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = LANG[S.lang].voice;
+  u.rate = slow ? 0.6 : 0.95;
+  const v = speechSynthesis.getVoices().find(v => v.lang.replace("_", "-").startsWith(S.lang));
+  if (v) u.voice = v;
+  speechSynthesis.speak(u);
+}
+if ("speechSynthesis" in window) speechSynthesis.onvoiceschanged = () => {};
+
+let recNow = null;
+function listen(onResult, onEnd) {
+  if (!canListen) return;
+  if (recNow) { recNow.stop(); return; }
+  const r = new Rec();
+  r.lang = LANG[S.lang].voice;
+  r.interimResults = false;
+  r.maxAlternatives = 3;
+  r.onresult = e => {
+    const alts = Array.from(e.results[0]).map(a => a.transcript);
+    onResult(alts);
+  };
+  r.onerror = e => { if (e.error === "not-allowed") alert("Permita o uso do microfone para praticar a fala."); };
+  r.onend = () => { recNow = null; onEnd && onEnd(); };
+  recNow = r;
+  r.start();
+}
+
+/* ===================== COMPARAÇÃO ===================== */
+function norm(s) {
+  return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9ñ' ]/g, " ").replace(/\s+/g, " ").trim();
+}
+function grade(target, said) {
+  const tw = norm(target).split(" ");
+  const sw = norm(said).split(" ");
+  const pool = sw.slice();
+  const marks = tw.map(w => { const i = pool.indexOf(w); if (i >= 0) { pool.splice(i, 1); return true; } return false; });
+  const hit = marks.filter(Boolean).length;
+  const extra = Math.max(0, sw.length - tw.length);
+  const score = Math.max(0, Math.round(100 * hit / tw.length - extra * 5));
+  return { score, marks };
+}
+function bestGrade(target, alts) {
+  return alts.map(a => ({ said: a, ...grade(target, a) })).sort((a, b) => b.score - a.score)[0];
+}
+
+/* ===================== TELAS ===================== */
+const $app = document.getElementById("app");
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function header() {
+  return `<header>
+    <div class="logo"><b>Fala</b>Já</div>
+    <div class="stats"><span title="Dias seguidos">🔥 ${S.streak}</span><span title="Pontos">⭐ ${S.xp}</span></div>
+  </header>`;
+}
+
+function home() {
+  const L = S.lang;
+  $app.innerHTML = header() + `
+    <div class="card">
+      <b>Qual língua você quer praticar?</b>
+      <div class="langs" style="margin-top:12px">
+        ${Object.entries(LANG).map(([k, v]) => `<button class="lang ${k} ${L === k ? "on" : ""}" data-lang="${k}"><span class="flag">${v.flag}</span>${v.name}</button>`).join("")}
+      </div>
+    </div>
+    <h2>Como você quer treinar hoje?</h2>
+    <div class="modes">
+      <button class="mode" data-go="topics"><span class="ico">🎧</span><span><b>Ouvir e repetir</b><span class="muted">Escute a frase, fale em voz alta e veja a sua nota.</span></span></button>
+      <button class="mode" data-go="dialogs"><span class="ico">💬</span><span><b>Conversa guiada</b><span class="muted">Responda falando, como numa conversa de verdade.</span></span></button>
+    </div>
+    ${canListen ? "" : `<div class="note">⚠️ Seu navegador não reconhece a voz. Você ainda pode ouvir as frases e digitar as respostas. Para falar, use o <b>Google Chrome</b> (no Android ou no computador).</div>`}
+    <footer>FalaJá · treine um pouquinho todo dia 💚</footer>`;
+  $app.querySelectorAll("[data-lang]").forEach(b => b.onclick = () => { S.lang = b.dataset.lang; save(); home(); });
+  $app.querySelector('[data-go="topics"]').onclick = topics;
+  $app.querySelector('[data-go="dialogs"]').onclick = dialogs;
+}
+
+function topics() {
+  $app.innerHTML = header() + `
+    <button class="back">← Voltar</button>
+    <h2>${LANG[S.lang].flag} Escolha um tema</h2>
+    <div class="topics">
+      ${TOPICS.map(t => {
+        const d = (S.done[S.lang + ":" + t.id] || 0);
+        return `<button class="topic" data-id="${t.id}"><span class="ico">${t.ico}</span><span class="name">${t.name}</span>
+          <span class="muted">${d}/${t.phrases.length} frases</span><div class="bar"><i style="width:${100 * d / t.phrases.length}%"></i></div></button>`;
+      }).join("")}
+    </div>`;
+  $app.querySelector(".back").onclick = home;
+  $app.querySelectorAll(".topic").forEach(b => b.onclick = () => lesson(TOPICS.find(t => t.id === b.dataset.id), 0));
+}
+
+function lesson(topic, i) {
+  const p = topic.phrases[i];
+  const target = p[S.lang];
+  $app.innerHTML = header() + `
+    <button class="back">← ${topic.name}</button>
+    <div class="progress"><i style="width:${100 * i / topic.phrases.length}%"></i></div>
+    <div class="card">
+      <div class="muted">Fale esta frase em ${LANG[S.lang].name.toLowerCase()}:</div>
+      <div class="phrase" id="phrase">${esc(target)}</div>
+      <div class="trans">${esc(p.pt)}</div>
+      <div class="row">
+        <button class="btn ghost" id="play">🔊 Ouvir</button>
+        <button class="btn ghost" id="slow">🐢 Devagar</button>
+      </div>
+      <div class="center">
+        ${canListen ? `<button class="btn mic" id="mic" aria-label="Falar">🎤</button><div class="muted" id="micTip">Toque e fale</div>` :
+          `<div class="typebox"><input id="typed" placeholder="Digite a frase aqui"><button class="btn" id="check">OK</button></div>`}
+        <div class="heard" id="heard"></div>
+        <div class="feedback" id="fb"></div>
+      </div>
+    </div>
+    <div class="row">
+      <button class="btn ghost" id="skip">Pular</button>
+      <button class="btn" id="next" disabled>Próxima →</button>
+    </div>`;
+  $app.querySelector(".back").onclick = topics;
+  $app.querySelector("#play").onclick = () => speak(target);
+  $app.querySelector("#slow").onclick = () => speak(target, true);
+  const next = () => {
+    if (i + 1 < topic.phrases.length) lesson(topic, i + 1);
+    else finished(topic);
+  };
+  $app.querySelector("#skip").onclick = next;
+  $app.querySelector("#next").onclick = next;
+  let rewarded = false;
+
+  const judge = alts => {
+    const g = bestGrade(target, alts);
+    const words = target.split(" ");
+    $app.querySelector("#phrase").innerHTML = words.map((w, k) => `<span class="w ${g.marks[k] ? "ok" : "miss"}">${esc(w)}</span>`).join(" ");
+    $app.querySelector("#heard").textContent = `Você disse: "${g.said}"`;
+    const cls = g.score >= 80 ? "good" : g.score >= 50 ? "mid" : "bad";
+    const msg = g.score >= 80 ? "Mandou bem! 🎉" : g.score >= 50 ? "Quase lá! Tente de novo as palavras em vermelho." : "Ouça de novo e tente mais uma vez 💪";
+    $app.querySelector("#fb").innerHTML = `<div class="score ${cls}">${g.score}%</div><div>${msg}</div>`;
+    if (g.score >= 50) {
+      $app.querySelector("#next").disabled = false;
+      if (!rewarded) {
+        rewarded = true;
+        addXP(g.score >= 80 ? 10 : 5);
+        const key = S.lang + ":" + topic.id;
+        S.done[key] = Math.max(S.done[key] || 0, i + 1); save();
+        $app.querySelector(".stats").outerHTML = `<div class="stats"><span>🔥 ${S.streak}</span><span>⭐ ${S.xp}</span></div>`;
+      }
+    }
+  };
+
+  if (canListen) {
+    const mic = $app.querySelector("#mic");
+    mic.onclick = () => {
+      speechSynthesis && speechSynthesis.cancel();
+      mic.classList.add("rec"); $app.querySelector("#micTip").textContent = "Ouvindo… fale agora";
+      listen(judge, () => { mic.classList.remove("rec"); $app.querySelector("#micTip").textContent = "Toque e fale"; });
+    };
+  } else {
+    const go = () => judge([$app.querySelector("#typed").value]);
+    $app.querySelector("#check").onclick = go;
+    $app.querySelector("#typed").onkeydown = e => { if (e.key === "Enter") go(); };
+  }
+  setTimeout(() => speak(target), 300);
+}
+
+function finished(topic) {
+  addXP(20);
+  $app.innerHTML = header() + `
+    <div class="card center" style="margin-top:30px">
+      <div style="font-size:4rem">🏆</div>
+      <h2>Tema "${topic.name}" concluído!</h2>
+      <p class="muted">Você ganhou +20 pontos de bônus. Volte amanhã para manter a sua sequência 🔥</p>
+      <div class="row"><button class="btn ghost" id="again">Repetir</button><button class="btn" id="more">Outros temas</button></div>
+    </div>`;
+  $app.querySelector("#again").onclick = () => lesson(topic, 0);
+  $app.querySelector("#more").onclick = topics;
+}
+
+function dialogs() {
+  const list = DIALOGS[S.lang];
+  $app.innerHTML = header() + `
+    <button class="back">← Voltar</button>
+    <h2>${LANG[S.lang].flag} Conversas guiadas</h2>
+    <div class="modes">${list.map((d, k) => `<button class="mode" data-k="${k}"><span class="ico">💬</span><span><b>${d.title}</b><span class="muted">${d.lines.length} falas</span></span></button>`).join("")}</div>`;
+  $app.querySelector(".back").onclick = home;
+  $app.querySelectorAll("[data-k]").forEach(b => b.onclick = () => chat(list[+b.dataset.k]));
+}
+
+function chat(d) {
+  let step = 0;
+  $app.innerHTML = header() + `
+    <button class="back">← Conversas</button>
+    <h2>${d.title}</h2>
+    <div class="chat" id="chat"></div>
+    <div id="turn"></div>`;
+  $app.querySelector(".back").onclick = dialogs;
+  const $chat = $app.querySelector("#chat"), $turn = $app.querySelector("#turn");
+  const add = (cls, text, sub) => {
+    const m = document.createElement("div"); m.className = "msg " + cls;
+    m.innerHTML = esc(text) + (sub ? `<small>${esc(sub)}</small>` : "");
+    $chat.appendChild(m); m.scrollIntoView({ behavior: "smooth", block: "end" });
+  };
+
+  const botTurn = () => {
+    const ln = d.lines[step];
+    add("bot", ln.bot, ln.pt);
+    speak(ln.bot);
+    $turn.innerHTML = `
+      <div class="muted" style="margin-bottom:8px">Responda falando uma destas frases (toque para ouvir):</div>
+      <div class="hints">${ln.ans.map((a, k) => `<button class="hint" data-k="${k}">🔊 ${esc(a[0])}<small>${esc(a[1])}</small></button>`).join("")}</div>
+      <div class="center">
+        ${canListen ? `<button class="btn mic" id="mic">🎤</button><div class="muted" id="micTip">Toque e responda</div>` :
+          `<div class="typebox"><input id="typed" placeholder="Digite a sua resposta"><button class="btn" id="check">OK</button></div>`}
+        <div class="heard" id="heard"></div>
+      </div>
+      <div class="center"><button class="back" id="replay">🔁 Ouvir a pergunta de novo</button></div>`;
+    $turn.querySelectorAll(".hint").forEach(h => h.onclick = () => speak(ln.ans[+h.dataset.k][0]));
+    $turn.querySelector("#replay").onclick = () => speak(ln.bot);
+
+    const answer = alts => {
+      const best = ln.ans.map(a => ({ a, ...bestGrade(a[0], alts) })).sort((x, y) => y.score - x.score)[0];
+      if (best.score >= 60) {
+        add("me", best.said, `${best.score}% ✔`);
+        addXP(best.score >= 80 ? 10 : 5);
+        step++;
+        if (step < d.lines.length) setTimeout(botTurn, 700);
+        else setTimeout(() => {
+          addXP(20);
+          $turn.innerHTML = `<div class="card center"><div style="font-size:3rem">🎉</div><b>Conversa concluída!</b><p class="muted">+20 pontos de bônus.</p>
+            <div class="row"><button class="btn ghost" id="again">Repetir</button><button class="btn" id="more">Outras conversas</button></div></div>`;
+          $turn.querySelector("#again").onclick = () => chat(d);
+          $turn.querySelector("#more").onclick = dialogs;
+        }, 700);
+      } else {
+        $turn.querySelector("#heard").innerHTML = `Entendi: "${esc(best.said)}" — ainda não deu (${best.score}%). Ouça a frase e tente de novo 💪`;
+      }
+    };
+
+    if (canListen) {
+      const mic = $turn.querySelector("#mic");
+      mic.onclick = () => {
+        speechSynthesis && speechSynthesis.cancel();
+        mic.classList.add("rec"); $turn.querySelector("#micTip").textContent = "Ouvindo…";
+        listen(answer, () => { mic.classList.remove("rec"); const t = $turn.querySelector("#micTip"); if (t) t.textContent = "Toque e responda"; });
+      };
+    } else {
+      const go = () => answer([$turn.querySelector("#typed").value]);
+      $turn.querySelector("#check").onclick = go;
+      $turn.querySelector("#typed").onkeydown = e => { if (e.key === "Enter") go(); };
+    }
+  };
+  botTurn();
+}
+
+home();
+</script>
+</body>
+</html>
